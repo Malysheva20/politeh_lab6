@@ -7,18 +7,14 @@ void PrintLibrary(BOOK* library, int numOfElements) {
 
 	while (numOfElements-- > 0) {
 		printf("Book #%i\n", cnt);
-		printf("\tAuthor: %s\n", ptr->author);
-		printf("\tCategory: %s\n", ptr->category);
-		printf("\tHeader: %s\n", ptr->header);
-		printf("\tPrice: %i\n", ptr->price);
-		printf("\tYear: %i\n", ptr->year);
+		PrintBook(*ptr);
 		cnt++;
 		ptr++;
 	}
 }
 
 void AddNewBook(BOOK **library, int *numOfElements ) {
-	BOOK * ptr = (BOOK*)calloc((*numOfElements + 1), sizeof(BOOK));
+	BOOK * ptr = (BOOK*)malloc((*numOfElements + 1) * sizeof(char) * BUFFER_SIZE * 3 + sizeof(int) * 2);
 
 	if (ptr == nullptr) {
 		printf("Memory error\n");
@@ -46,7 +42,7 @@ void DeleteBook(BOOK** library, int* numOfElements, int elementToDelete) {
 		return;
 	}
 
-	BOOK *ptr = (BOOK*)calloc((*numOfElements - 1), sizeof(BOOK));
+	BOOK *ptr = (BOOK*)malloc((*numOfElements - 1) * sizeof(char) * BUFFER_SIZE * 3 + sizeof(int) * 2);
 
 	if (ptr == nullptr) {
 		printf("Memory error\n");
@@ -62,9 +58,9 @@ void DeleteBook(BOOK** library, int* numOfElements, int elementToDelete) {
 
 	free(*library);
 	*library = ptr;
-	
-	printf("Book #%i deleted\n", elementToDelete);
 	(*numOfElements)--;
+
+	printf("Book #%i deleted\n", elementToDelete);
 }
 
 void PrintInFile(BOOK* library, int numOfElements, const char* fileName) {
@@ -77,13 +73,9 @@ void PrintInFile(BOOK* library, int numOfElements, const char* fileName) {
 
 	fwrite(&numOfElements, sizeof(int), 1, F);
 
-	for (int i = 0; i < numOfElements; i++) {
-		fwrite(&(library[i].author), sizeof(char) * BUFFER_SIZE, 1, F);
-		fwrite(&(library[i].header), sizeof(char) * BUFFER_SIZE, 1, F);
-		fwrite(&(library[i].year), sizeof(int), 1, F);
-		fwrite(&(library[i].price), sizeof(int), 1, F);
-		fwrite(&(library[i].category), sizeof(char) * BUFFER_SIZE, 1, F);
-	}
+	for (int i = 0; i < numOfElements; i++)
+		fwrite(&(library[i]), sizeof(char) * BUFFER_SIZE * 3 + sizeof(int) * 2, 1, F);
+
 	fclose(F);
 }
 
@@ -105,13 +97,9 @@ void LoadFromFile(BOOK** library, int *numOfElements, const char* fileName) {
 		return;
 	}
 
-	for (int i = 0; i < *numOfElements; i++) {
-		fread(&((*library)[i].author), sizeof(char)* BUFFER_SIZE, 1, F);
-		fread(&((*library)[i].header), sizeof(char) * BUFFER_SIZE, 1, F);
-		fread(&((*library)[i].year), sizeof(int), 1, F);
-		fread(&((*library)[i].price), sizeof(int), 1, F);
-		fread(&((*library)[i].category), sizeof(char) * BUFFER_SIZE, 1, F);
-	}
+	for (int i = 0; i < *numOfElements; i++)
+		fread(*library + i, sizeof(char) * BUFFER_SIZE * 3 + sizeof(int) * 2, 1, F);
+
 	fclose(F);
 }
 

@@ -13,7 +13,6 @@ struct BOOK
 	char category[BUFFER_SIZE];
 };
 
-extern void BookTask();
 extern BOOK ScanBook();
 extern void PrintBook(const BOOK& printingBook);
 extern void MyScanf(char** buffer, int sizeOfBuffer);

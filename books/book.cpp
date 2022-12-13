@@ -23,6 +23,33 @@ void MyScanf(char** buffer, int sizeOfBuffer) {
 	printf("\n");
 }
 
+bool IsNumber(char* stringToCheck, int numOfElements) {
+	bool flag = true;
+	int i = 0;
+
+	while (flag && i < numOfElements && stringToCheck[i] != 0) {
+		if (stringToCheck[i] - '0' < 0 || stringToCheck[i] - '0' > 9)
+			flag = false;
+		i++;
+	}
+	return flag;
+}
+
+int StringToNumber(char* stringToTransform, int numOfElements) {
+	int result = 0, i = 0;
+
+	for (i = 0; i < numOfElements && stringToTransform[i] != 0; i++)
+		result = result * 10 + stringToTransform[i] - '0';
+
+	return result;
+}
+
+/* Printing book data function.
+ * ARGUMENTS:
+ *  - const BOOK& printingBook;
+ * RETURNS:
+ * (None).
+ */
 void PrintBook(const BOOK& printingBook) {
 	printf("author: %s\n", printingBook.author);
 	printf("header: %s\n", printingBook.header);
@@ -68,8 +95,6 @@ BOOK ScanBook() {
 	char st[BUFFER_SIZE] = { 0 };
 	char* tmpbuf;
 
-	int year, price;
-
 	printf("author: ");
 	MyScanf(&tmpbuf, BUFFER_SIZE);
 	strcpy(newBook.author, tmpbuf);
@@ -78,15 +103,24 @@ BOOK ScanBook() {
 	printf("header: ");
 	MyScanf(&tmpbuf, BUFFER_SIZE);
 	strcpy(newBook.header, tmpbuf);
-	free(tmpbuf);
 
-	printf("year of publication: ");
-	scanf("%i", &year);
-	newBook.year = CheckYear(year);
+	int flagnum = true;
+	do {
+		free(tmpbuf);
+		printf("year of publication: ");
+		MyScanf(&tmpbuf, BUFFER_SIZE);
+		flagnum = !IsNumber(tmpbuf, BUFFER_SIZE);
+	} while (flagnum);
+	newBook.year = CheckYear(StringToNumber(tmpbuf, BUFFER_SIZE));
 
-	printf("price: ");
-	scanf("%i", &price);
-	newBook.price = CheckPrice(price);
+	do {
+		free(tmpbuf);
+		printf("price: ");
+		MyScanf(&tmpbuf, BUFFER_SIZE);
+		flagnum = !IsNumber(tmpbuf, BUFFER_SIZE);
+	} while (flagnum);
+
+	newBook.price = CheckPrice(StringToNumber(tmpbuf, BUFFER_SIZE));
 
 	printf("Choose category from list: fantasy, manga, classic, roman\n");
 	MyScanf(&tmpbuf, BUFFER_SIZE);
