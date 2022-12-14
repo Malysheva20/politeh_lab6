@@ -1,13 +1,16 @@
 #include "book.h"
 
 void MyScanf(char** buffer, int sizeOfBuffer) {
+	// memory allocation
 	*buffer = (char*)malloc(sizeof(char) * sizeOfBuffer);
 
+	// checking memory
 	if (buffer == nullptr)
 		return;
 
 	char sym;
 	int cnt = 0;
+	// writing in buffer
 	while ((sym = _getch()) && sym != 13 && sym != 27 && cnt < sizeOfBuffer) {
 		if (sym == 8) {
 			printf("\b");
@@ -27,6 +30,7 @@ bool IsNumber(char* stringToCheck, int numOfElements) {
 	bool flag = true;
 	int i = 0;
 
+	// checking digit symbols
 	while (flag && i < numOfElements && stringToCheck[i] != 0) {
 		if (stringToCheck[i] - '0' < 0 || stringToCheck[i] - '0' > 9)
 			flag = false;
@@ -38,6 +42,7 @@ bool IsNumber(char* stringToCheck, int numOfElements) {
 int StringToNumber(char* stringToTransform, int numOfElements) {
 	int result = 0, i = 0;
 
+	// converting string to integer number
 	for (i = 0; i < numOfElements && stringToTransform[i] != 0; i++)
 		result = result * 10 + stringToTransform[i] - '0';
 
@@ -51,6 +56,7 @@ int StringToNumber(char* stringToTransform, int numOfElements) {
  * (None).
  */
 void PrintBook(const BOOK& printingBook) {
+	// printing book elements
 	printf("author: %s\n", printingBook.author);
 	printf("header: %s\n", printingBook.header);
 	printf("year of publication: %i\n", printingBook.year);
@@ -59,6 +65,7 @@ void PrintBook(const BOOK& printingBook) {
 }
 
 int CheckYear(int year) {
+	// checking year
 	if (year < 2022 && year > 0)
 		return year;
 	printf("Ooops, error! :'(\n");
@@ -66,22 +73,27 @@ int CheckYear(int year) {
 }
 
 int CheckPrice(int price) {
+	// checking price
 	if (price > 0)
 		return price;
 
-	printf("Ooops, error! :'(\n");
+	printf("Ooops, error! Now your price is 100 :'(\n");
 	return 100;
 }
 
 char* CheckCategory(char* category) {
+	// category array
 	char list[4][BUFFER_SIZE] = { "fantasy", "manga", "classic", "roman" };
+	
 	while (true) {
 		for (int i = 0; i < 4; i++) {
+			// checking category
 			if (strcmp(list[i], category) == 0) {
 				return category;
 			}
 		}
 
+		// scanning new input
 		printf("Sorry, but choose category from list: fantasy, manga, classic, roman:'(\n");
 		char* tmpbuf;
 		MyScanf(&tmpbuf, BUFFER_SIZE);
@@ -95,15 +107,18 @@ BOOK ScanBook() {
 	char st[BUFFER_SIZE] = { 0 };
 	char* tmpbuf;
 
+	// scanning author
 	printf("author: ");
 	MyScanf(&tmpbuf, BUFFER_SIZE);
 	strcpy(newBook.author, tmpbuf);
 	free(tmpbuf);
 
+	// scanning header
 	printf("header: ");
 	MyScanf(&tmpbuf, BUFFER_SIZE);
 	strcpy(newBook.header, tmpbuf);
 
+	// scanning year
 	int flagnum = true;
 	do {
 		free(tmpbuf);
@@ -113,15 +128,16 @@ BOOK ScanBook() {
 	} while (flagnum);
 	newBook.year = CheckYear(StringToNumber(tmpbuf, BUFFER_SIZE));
 
+	// scanning price
 	do {
 		free(tmpbuf);
 		printf("price: ");
 		MyScanf(&tmpbuf, BUFFER_SIZE);
 		flagnum = !IsNumber(tmpbuf, BUFFER_SIZE);
 	} while (flagnum);
-
 	newBook.price = CheckPrice(StringToNumber(tmpbuf, BUFFER_SIZE));
 
+	// scanning category
 	printf("Choose category from list: fantasy, manga, classic, roman\n");
 	MyScanf(&tmpbuf, BUFFER_SIZE);
 	strcpy(st, tmpbuf);
@@ -129,25 +145,4 @@ BOOK ScanBook() {
 	strcpy(newBook.category, CheckCategory(st));
 
 	return newBook;
-}
-
-BOOK bookglobal = { "Masashi Kishimoto", "Naruto", 23, 840, "manga" };
-
-void BookTask() {
-	BOOK booklocal = { "Masashi Kishimoto", "Naruto", 23, 840, "manga" };
-	static BOOK bookstat = { "Masashi Kishimoto", "Naruto", 23, 840, "manga" };
-	BOOK* bookdynamic = new BOOK{ "Masashi Kishimoto", "Naruto", 23, 840, "manga" };
-
-	printf("%i\n", (int)sizeof(bookglobal));
-	printf("%i\n", (int)sizeof(booklocal));
-	printf("%i\n", (int)sizeof(bookstat));
-	printf("%i\n", (int)sizeof(bookdynamic));
-
-	PrintBook(bookglobal);
-	PrintBook(booklocal);
-	PrintBook(bookstat);
-	PrintBook(*bookdynamic);
-
-	BOOK bookTest = ScanBook();
-	PrintBook(bookTest);
 }

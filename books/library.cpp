@@ -2,53 +2,66 @@
 #include "library.h"
 
 void PrintLibrary(BOOK* library, int numOfElements) {
-	BOOK* ptr = library;
 	int cnt = 0;
 
+	// printing library books
 	while (numOfElements-- > 0) {
 		printf("Book #%i\n", cnt);
-		PrintBook(*ptr);
+		PrintBook(*library);
 		cnt++;
-		ptr++;
+		library++;
 	}
 }
 
 void AddNewBook(BOOK **library, int *numOfElements ) {
+	// memory allocation
 	BOOK * ptr = (BOOK*)malloc((*numOfElements + 1) * sizeof(char) * BUFFER_SIZE * 3 + sizeof(int) * 2);
 
+	// checking memory
 	if (ptr == nullptr) {
 		printf("Memory error\n");
 		return;
 	}
 
+	// copying elements
 	for (int i = 0; i < *numOfElements; i++)
 		ptr[i] = (*library)[i];
 
+	// deleting old memory
 	free(*library);
+
+	// copying pointer
 	*library = ptr;
 	
+	// adding new element
 	*(*library + *numOfElements) = ScanBook();
 	printf("Book added\n");
 	(*numOfElements)++;
 }
 
 void DeleteBook(BOOK** library, int* numOfElements, int elementToDelete) {
+	// checking number of elements
 	if (*numOfElements < 1) {
 		printf("No elements in library\n");
 		return;
 	}
+
+	// checking number to delete
 	if (elementToDelete < 0 || elementToDelete >= *numOfElements) {
 		printf("No such element in library\n");
 		return;
 	}
 
+	// memory allocation
 	BOOK *ptr = (BOOK*)malloc((*numOfElements - 1) * sizeof(char) * BUFFER_SIZE * 3 + sizeof(int) * 2);
 
+	// checking memory
 	if (ptr == nullptr) {
 		printf("Memory error\n");
 		return;
 	}
 
+	// copying elements
 	int flagnoelement = 0;
 	for (int i = 0; i < *numOfElements - 1; i++) {
 		if (i == elementToDelete)
@@ -56,50 +69,64 @@ void DeleteBook(BOOK** library, int* numOfElements, int elementToDelete) {
 		ptr[i] = (*library)[i + flagnoelement];
 	}
 
+	// deleting old memory
 	free(*library);
+
+	// copying pointer
 	*library = ptr;
 	(*numOfElements)--;
-
 	printf("Book #%i deleted\n", elementToDelete);
 }
 
 void PrintInFile(BOOK* library, int numOfElements, const char* fileName) {
 	FILE* F;
 
+	// opening file
 	if ((F = fopen(fileName, "wb")) == nullptr) {
 		printf("Error loading file");
 		return;
 	}
 
+	// writing number of elements
 	fwrite(&numOfElements, sizeof(int), 1, F);
 
+	// writing books
 	for (int i = 0; i < numOfElements; i++)
 		fwrite(&(library[i]), sizeof(char) * BUFFER_SIZE * 3 + sizeof(int) * 2, 1, F);
 
+	// closing file
 	fclose(F);
 }
 
 void LoadFromFile(BOOK** library, int *numOfElements, const char* fileName) {
 	FILE* F;
 
+	// opening file
 	if ((F = fopen(fileName, "rb")) == nullptr) {
 		printf("Error loading file");
 		return;
 	}
 
+	// reading number of elements
 	fread(numOfElements, sizeof(int), 1, F);
 
+	// deleting old memory
 	free(*library);
+
+	// memory allocation
 	*library = (BOOK*)malloc(sizeof(BOOK) * *numOfElements);
 
+	// checking memory
 	if (*library == nullptr) {
 		printf("Memory error\n");
 		return;
 	}
 
+	// reading books
 	for (int i = 0; i < *numOfElements; i++)
 		fread(*library + i, sizeof(char) * BUFFER_SIZE * 3 + sizeof(int) * 2, 1, F);
 
+	// closing file
 	fclose(F);
 }
 
@@ -121,6 +148,7 @@ int CmpStr(void* a, void* b) {
 }
 
 void SortLibrary(BOOK** library, int numofElements, int param) {
+	// sorting
 	if (param == 0)
 		for (int i = 0; i < numofElements; i++)
 			for (int j = i + 1; j < numofElements; j++)
@@ -174,33 +202,40 @@ void LibraryHandler(void) {
 		switch (_getch())
 		{
 		case '0':
+			// exit
 			isWorking = false;
 			break;
 		case '1':
+			// printing library
 			PrintLibrary(library, size);
 			break;
 		case '2':
+			// adding new book
 			AddNewBook(&library, &size);
 			break;
 		case '3':
+			// deleting book
 			int bookToDelete;
 			printf("Input book number: ");
 			scanf("%i", &bookToDelete);
 			DeleteBook(&library, &size, bookToDelete);
 			break;
 		case '4':
+			// file writing
 			printf("Input file name: ");
 			MyScanf(&fileName, BUFFER_SIZE);
 			PrintInFile(library, size, fileName);
 			free(fileName);
 			break;
 		case '5':
+			// file reading
 			printf("Input file name: ");
 			MyScanf(&fileName, BUFFER_SIZE);
 			LoadFromFile(&library, &size, fileName);
 			free(fileName);
 			break;
 		case '6':
+			// sorting
 			printf("Sort by:\n0 - author\n1 - header\n2 - year\n3 - price\n4 - category\n");
 			SortLibrary(&library, size, _getch() - '0');
 		default:
@@ -208,5 +243,6 @@ void LibraryHandler(void) {
 		}
 	}
 
+	// deleting memory
 	free(library);
 }
